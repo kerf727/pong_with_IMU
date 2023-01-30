@@ -33,15 +33,12 @@ int main(int argc, char *argv[])
 
 	game_t game = {
 		.state = RUNNING_STATE,
-		.x_pos = 0
+		.x_pos = WIDTH / 2
 	};
 
-	int x_pos = 0;
 	int x_vel = 0;
-	int left = 0;
-	int right = 0;
 
-	// const Uint8 *key_states = SDL_GetKeyboardState(NULL);
+	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
 	SDL_Event event;
 	while (game.state != QUIT_STATE)
@@ -53,64 +50,42 @@ int main(int argc, char *argv[])
 			case SDL_QUIT:
 				game.state = QUIT_STATE;
 				break;
-			case SDL_KEYDOWN:
-				switch(event.key.keysym.scancode)
-				{
-					case SDL_SCANCODE_A:
-					case SDL_SCANCODE_LEFT:
-						left = 1;
-						break;
-					case SDL_SCANCODE_D:
-					case SDL_SCANCODE_RIGHT:
-						right = 1;
-						break;
-				}
-				break;
-			case SDL_KEYUP:
-				switch(event.key.keysym.scancode)
-				{
-					case SDL_SCANCODE_A:
-					case SDL_SCANCODE_LEFT:
-						left = 0;
-						break;
-					case SDL_SCANCODE_D:
-					case SDL_SCANCODE_RIGHT:
-						right = 0;
-						break;
-				}
-				break;
-			default:
-				break;
 			}
-
-			x_vel = 0;
-			if (left && !right)
-				x_vel = -SPEED;
-			if (right && !left)
-				x_vel = SPEED;
-
-			x_pos += x_vel / 60;
-
-			if (x_pos - PADDLE_WIDTH / 2 <= 0)
-				x_pos = PADDLE_WIDTH / 2;
-			if (x_pos >= WIDTH - PADDLE_WIDTH / 2)
-				x_pos = WIDTH - PADDLE_WIDTH / 2;
-
-			// Set positions in the game struct
-			game.x_pos = x_pos;
-
-			// Clear the window to black
-			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-			SDL_RenderClear(renderer);
-
-			// Draw the image to the window
-			// SDL_RenderCopy(renderer, ?, NULL, NULL);
-			render_game(renderer, &game);
-			SDL_RenderPresent(renderer);
-
-			// Wait 1/60th of a second
-			SDL_Delay(1000 / 60);
 		}
+
+		SDL_PumpEvents();
+
+		const Uint8 left_pressed = keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A];
+		const Uint8 right_pressed = keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D];
+		
+		x_vel = 0;
+		if (left_pressed && !right_pressed)
+		{
+			x_vel = -SPEED;
+		}
+		else if (!left_pressed && right_pressed)
+		{
+			x_vel = SPEED;
+		}
+
+		game.x_pos += x_vel / 60;
+
+		if (game.x_pos - PADDLE_WIDTH / 2 <= 0)
+			game.x_pos = PADDLE_WIDTH / 2;
+		if (game.x_pos >= WIDTH - PADDLE_WIDTH / 2)
+			game.x_pos = WIDTH - PADDLE_WIDTH / 2;
+
+		// Clear the window to black
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+
+		// Draw the image to the window
+		// SDL_RenderCopy(renderer, ?, NULL, NULL);
+		render_game(renderer, &game);
+		SDL_RenderPresent(renderer);
+
+		// Wait 1/60th of a second
+		SDL_Delay(1000 / 60);
 	}
 
 	// SDL_DestroyTexture(tex);
