@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_timer.h>
 
 #include "./game.h"
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
 
 	game_t game = {
 		.state = RUNNING_STATE,
-		.x_pos = WIDTH / 2
+		.player_x_pos = WIDTH / 2
 	};
 
 	int x_vel = 0;
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		// Update the keyboard state
 		SDL_PumpEvents();
 
 		const Uint8 left_pressed = keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A];
@@ -68,12 +70,12 @@ int main(int argc, char *argv[])
 			x_vel = SPEED;
 		}
 
-		game.x_pos += x_vel / 60;
+		game.player_x_pos += x_vel / 60;
 
-		if (game.x_pos - PADDLE_WIDTH / 2 <= 0)
-			game.x_pos = PADDLE_WIDTH / 2;
-		if (game.x_pos >= WIDTH - PADDLE_WIDTH / 2)
-			game.x_pos = WIDTH - PADDLE_WIDTH / 2;
+		if (game.player_x_pos - PADDLE_WIDTH / 2 <= 0)
+			game.player_x_pos = PADDLE_WIDTH / 2;
+		if (game.player_x_pos >= WIDTH - PADDLE_WIDTH / 2)
+			game.player_x_pos = WIDTH - PADDLE_WIDTH / 2;
 
 		// Clear the window to black
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
