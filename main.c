@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_timer.h>
@@ -34,10 +35,14 @@ int main(int argc, char *argv[])
 
 	game_t game = {
 		.state = RUNNING_STATE,
-		.player_x_pos = WIDTH / 2
+		.player_x_pos = WIDTH / 2,
+		.player_x_vel = 0,
+		.opponent_x_pos = WIDTH / 2,
+		.ball_pos = {WIDTH / 2, HEIGHT / 2},
+		.ball_vel = {BALL_SPEED / 2, BALL_SPEED},
+		.player_score = 0,
+		.opponent_score = 0
 	};
-
-	int x_vel = 0;
 
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -60,34 +65,30 @@ int main(int argc, char *argv[])
 		const Uint8 left_pressed = keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A];
 		const Uint8 right_pressed = keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D];
 		
-		x_vel = 0;
+		// Update the player velocity
+		game.player_x_vel = 0;
 		if (left_pressed && !right_pressed)
 		{
-			x_vel = -SPEED;
+			game.player_x_vel = -PLAYER_SPEED;
 		}
 		else if (!left_pressed && right_pressed)
 		{
-			x_vel = SPEED;
+			game.player_x_vel = PLAYER_SPEED;
 		}
 
-		game.player_x_pos += x_vel / 60;
+		// Update the game state
+		update_game_state(&game);
 
-		if (game.player_x_pos - PADDLE_WIDTH / 2 <= 0)
-			game.player_x_pos = PADDLE_WIDTH / 2;
-		if (game.player_x_pos >= WIDTH - PADDLE_WIDTH / 2)
-			game.player_x_pos = WIDTH - PADDLE_WIDTH / 2;
-
-		// Clear the window to black
+		// Clear the window
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 		SDL_RenderClear(renderer);
 
 		// Draw the image to the window
-		// SDL_RenderCopy(renderer, ?, NULL, NULL);
 		render_game(renderer, &game);
 		SDL_RenderPresent(renderer);
 
 		// Wait 1/60th of a second
-		SDL_Delay(1000 / 60);
+		SDL_Delay(1000 / FPS);
 	}
 
 	// SDL_DestroyTexture(tex);

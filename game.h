@@ -1,10 +1,16 @@
 #ifndef GAME_H_
 #define GAME_H_
 
-#define WIDTH				640
+#define FPS					60
+#define WIDTH				480
 #define HEIGHT				480
-#define SPEED				300
 #define PADDLE_WIDTH		100
+#define PADDLE_THICKNESS	10
+#define PADDLE_OFFSET		10
+#define PLAYER_SPEED		300
+#define OPPONENT_SPEED		200
+#define BALL_RADIUS			5
+#define BALL_SPEED			300
 
 #define WINNING_SCORE		5
 
@@ -18,13 +24,15 @@ typedef struct
 	int state;
 
 	int player_x_pos;
+	int player_x_vel;
 	int opponent_x_pos;
+	int opponent_x_vel;
+
+	int ball_pos[2];
+	int ball_vel[2];
 
 	int player_score;
 	int opponent_score;
-
-	int ball_x_pos;
-	int ball_y_pos;
 } game_t;
 
 #endif // !GAME_H_
