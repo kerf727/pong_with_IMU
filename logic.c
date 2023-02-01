@@ -14,7 +14,7 @@ void update_game_state(game_t *game)
 	if (game->player_x_pos >= WIDTH - PADDLE_WIDTH / 2)
 		game->player_x_pos = WIDTH - PADDLE_WIDTH / 2;
 
-	// Update opponent position to track ball
+	// Update opponent velocity to track ball
 	if (abs(game->ball_pos[0] - game->opponent_x_pos) > PADDLE_WIDTH / 4)
 	{
 		if (game->ball_pos[0] > game->opponent_x_pos)
@@ -27,6 +27,7 @@ void update_game_state(game_t *game)
 		game->opponent_x_vel = game->ball_vel[0] / 2;
 	}
 
+	// Update opponent position
 	game->opponent_x_pos += game->opponent_x_vel / FPS;
 
 	// Handle when opponent paddle hits edge of screen
@@ -87,4 +88,6 @@ void update_game_state(game_t *game)
 		game->state = PLAYER_WON_STATE;
 	else if (game->opponent_score == WINNING_SCORE)
 		game->state = PLAYER_LOST_STATE;
+
+	// TODO: Add way to restart game
 }

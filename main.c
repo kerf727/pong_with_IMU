@@ -8,6 +8,8 @@
 #include "./logic.h"
 #include "./rendering.h"
 
+// #define USE_IMU_AS_CONTROLLER
+
 int main(int argc, char *argv[])
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -66,13 +68,25 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		// TODO: incorporate read_serial_port header/source TL
+		// TODO: Replace key_presses with IMU input data
+#ifdef USE_IMU_AS_CONTROLLER
+		// Update player velocity
+		if (roll > 0)
+		{
+			// game->player_x_vel = ;
+		}
+		else
+		{
+			// game->player_x_vel = ;
+		}
+#else
 		// Update the keyboard state
 		SDL_PumpEvents();
-
 		const Uint8 left_pressed = keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A];
 		const Uint8 right_pressed = keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D];
-		
-		// Update the player velocity
+
+		// Update player velocity
 		game.player_x_vel = 0;
 		if (left_pressed && !right_pressed)
 		{
@@ -82,6 +96,7 @@ int main(int argc, char *argv[])
 		{
 			game.player_x_vel = PLAYER_SPEED;
 		}
+#endif
 
 		// Update the game state
 		if (game.state == RUNNING_STATE)

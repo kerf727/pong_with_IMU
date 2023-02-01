@@ -12,7 +12,7 @@
 #define BALL_RADIUS			5
 #define BALL_SPEED			300
 
-#define WINNING_SCORE		5
+#define WINNING_SCORE		1 // 5
 
 #define RUNNING_STATE		0
 #define PLAYER_WON_STATE	1
