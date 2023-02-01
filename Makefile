@@ -7,8 +7,8 @@ LIBRARY_PATHS = -L src/lib
 LINKER_FLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_gfx
 RM = del
 
-OBJS = main.c rendering.c logic.c
-# OBJS = main.o rendering.o logic.o
+OBJS = main.c rendering.c logic.c serial_port.c
+# OBJS = main.o rendering.o logic.o serial_port.o
 
 all: main
 

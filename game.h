@@ -11,6 +11,7 @@
 #define OPPONENT_SPEED		200
 #define BALL_RADIUS			5
 #define BALL_SPEED			300
+#define MAX_ROLL_ANGLE		45.0f
 
 #define WINNING_SCORE		1 // 5
 
