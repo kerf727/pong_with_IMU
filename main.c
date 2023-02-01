@@ -16,7 +16,14 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	SDL_Window *window = SDL_CreateWindow("Hello SDL World", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
+	if (TTF_Init() != 0)
+	{
+		printf("TTF_Init Error: %s\n", TTF_GetError());
+		return EXIT_FAILURE;
+	}
+	TTF_Init_font();
+
+	SDL_Window *window = SDL_CreateWindow("Pong with IMU Controller", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
 
 	if (window == NULL)
 	{
@@ -77,11 +84,13 @@ int main(int argc, char *argv[])
 		}
 
 		// Update the game state
-		update_game_state(&game);
+		if (game.state == RUNNING_STATE)
+		{
+			update_game_state(&game);
+		}
 
 		// Clear the window
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
+		render_clear_screen(renderer);
 
 		// Draw the image to the window
 		render_game(renderer, &game);
