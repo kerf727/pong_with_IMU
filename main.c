@@ -8,7 +8,7 @@
 #include "./logic.h"
 #include "./rendering.h"
 
-#define USE_IMU_AS_CONTROLLER
+// #define USE_IMU_AS_CONTROLLER
 
 #ifdef USE_IMU_AS_CONTROLLER
 

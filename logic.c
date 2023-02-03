@@ -70,7 +70,7 @@ void update_game_state(game_t *game)
 		game->player_score += 1;
 		game->ball_pos[0] = WIDTH / 2;
 		game->ball_pos[1] = HEIGHT / 2;
-		game->ball_vel[0] = -BALL_SPEED / 2;
+		game->ball_vel[0] = -BALL_SPEED / 2; // TODO: randomize this
 		game->ball_vel[1] = -BALL_SPEED;
 	}
 
@@ -79,7 +79,7 @@ void update_game_state(game_t *game)
 		game->opponent_score += 1;
 		game->ball_pos[0] = WIDTH / 2;
 		game->ball_pos[1] = HEIGHT / 2;
-		game->ball_vel[0] = BALL_SPEED / 2;
+		game->ball_vel[0] = BALL_SPEED / 2; // TODO: randomize this
 		game->ball_vel[1] = BALL_SPEED;
 	}
 
