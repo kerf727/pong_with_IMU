@@ -3,15 +3,13 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_timer.h>
+#include <time.h>
 
 #include "./game.h"
 #include "./logic.h"
 #include "./rendering.h"
 
-#define USE_IMU_AS_CONTROLLER
-
-#define DIFFICULTY_LEVEL 1
-// Levels 1-3
+// #define USE_IMU_AS_CONTROLLER
 
 #ifdef USE_IMU_AS_CONTROLLER
 
@@ -79,8 +77,9 @@ int main(int argc, char *argv[])
 	}
 
 	game_t game;
+	time_t restart_time = clock();
 
-	initialize_game_state(&game, DIFFICULTY_LEVEL);
+	game.state = START_SCREEN_STATE;
 
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -99,7 +98,6 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		// TODO: implement serial port read
 #ifdef USE_IMU_AS_CONTROLLER
 		float data[NUM_DATA_VALUES];
 		char *delim;
@@ -156,10 +154,40 @@ int main(int argc, char *argv[])
 		}
 #endif // USE_IMU_AS_CONTROLLER
 
-				// Update the game state
-				if (game.state == RUNNING_STATE)
+		// Update the game state
+		if (game.state == START_SCREEN_STATE)
+		{
+			if (clock() - restart_time < GAME_START_TIME_MS)
+			{
+				game.countdown_s = (int)(GAME_START_TIME_MS - (clock() - restart_time)) / 1000 + 1;
+			}
+			else
+			{
+				game.state = RUNNING_STATE;
+				initialize_game_state(&game, DIFFICULTY_LEVEL);
+			}
+		}
+		else if (game.state == RUNNING_STATE)
 		{
 			update_game_state(&game);
+		}
+		else if (game.state == GAME_OVER_STATE)
+		{
+			// Set restart time to compare against in RESET_STATE case
+			restart_time = clock();
+			game.state = RESET_STATE;
+		}
+		else if (game.state == RESET_STATE)
+		{
+			if (clock() - restart_time < RESET_WAIT_TIME_MS)
+			{
+				game.countdown_s = (int)(RESET_WAIT_TIME_MS - (clock() - restart_time)) / 1000 + 1;
+			}
+			else
+			{
+				game.state = RUNNING_STATE;
+				initialize_game_state(&game, DIFFICULTY_LEVEL);
+			}
 		}
 
 		// Clear the window

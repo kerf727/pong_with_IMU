@@ -8,6 +8,7 @@
 void initialize_game_state(game_t *game, int difficulty_level)
 {
 	game->state = RUNNING_STATE;
+	game->countdown_s = 0;
 
 	game->player_score = 0;
 	game->opponent_score = 0;
@@ -135,10 +136,7 @@ void update_game_state(game_t *game)
 	}
 
 	// Update game state
-	if (game->player_score == WINNING_SCORE)
-		game->state = PLAYER_WON_STATE;
-	else if (game->opponent_score == WINNING_SCORE)
-		game->state = PLAYER_LOST_STATE;
-
-	// TODO: Add way to restart game
+	if (game->player_score == WINNING_SCORE ||
+		game->opponent_score == WINNING_SCORE)
+		game->state = GAME_OVER_STATE;
 }

@@ -11,7 +11,9 @@
 #define SCORE_HEIGHT		50
 #define SCORE_Y_OFFSET		20
 #define WIN_SCORE_WIDTH		150
-#define WIN_SCORE_HEIGHT	150
+#define WIN_SCORE_HEIGHT	100
+#define COUNTDOWN_WIDTH		250
+#define COUNTDOWN_HEIGHT	100
 #define FONT_FILE			("./OpenSans-Regular.ttf")
 #define FONT_PTSIZE			24
 
@@ -108,20 +110,40 @@ void render_clear_screen(SDL_Renderer *renderer)
 	SDL_RenderClear(renderer);
 }
 
+void render_start_screen(SDL_Renderer *renderer, const game_t *game)
+{
+	render_clear_screen(renderer);
+
+	char countdown_str[16];
+	sprintf(countdown_str, "Starting in %d...", game->countdown_s);
+	SDL_Surface *countdown_surface = TTF_RenderText_Solid(font, countdown_str, BALL_COLOR);
+	SDL_Texture *countdown_texture = SDL_CreateTextureFromSurface(renderer, countdown_surface);
+
+	SDL_Rect countdown_rect;
+	countdown_rect.x = WIDTH / 2 - COUNTDOWN_WIDTH / 2;
+	countdown_rect.y = HEIGHT / 2 - COUNTDOWN_HEIGHT / 2;
+	countdown_rect.w = COUNTDOWN_WIDTH;
+	countdown_rect.h = COUNTDOWN_HEIGHT;
+
+	SDL_RenderCopy(renderer, countdown_texture, NULL, &countdown_rect);
+	SDL_FreeSurface(countdown_surface);
+	SDL_DestroyTexture(countdown_texture);
+}
+
 void render_win_screen(SDL_Renderer *renderer, const game_t *game)
 {
 	render_clear_screen(renderer);
 
-	char win_msg[] = "You Win!";
-	char lose_msg[] = "You Lose!";
+	char win_str[] = "You Win!";
+	char lose_str[] = "You Lose!";
 	SDL_Surface *message_surface;
-	if (game->state == PLAYER_WON_STATE)
+	if (game->player_score == WINNING_SCORE)
 	{
-		message_surface = TTF_RenderText_Solid(font, win_msg, BALL_COLOR);
+		message_surface = TTF_RenderText_Solid(font, win_str, BALL_COLOR);
 	}
 	else
 	{
-		message_surface = TTF_RenderText_Solid(font, lose_msg, BALL_COLOR);
+		message_surface = TTF_RenderText_Solid(font, lose_str, BALL_COLOR);
 	}
 	SDL_Texture *message_texture = SDL_CreateTextureFromSurface(renderer, message_surface);
 
@@ -130,38 +152,57 @@ void render_win_screen(SDL_Renderer *renderer, const game_t *game)
 	SDL_Surface *score_surface = TTF_RenderText_Solid(font, score_str, BALL_COLOR);
 	SDL_Texture *score_texture = SDL_CreateTextureFromSurface(renderer, score_surface);
 
+	char countdown_str[16];
+	sprintf(countdown_str, "Restart in %d...", game->countdown_s);
+	SDL_Surface *countdown_surface = TTF_RenderText_Solid(font, countdown_str, BALL_COLOR);
+	SDL_Texture *countdown_texture = SDL_CreateTextureFromSurface(renderer, countdown_surface);
+
 	SDL_Rect message_rect;
 	message_rect.x = WIDTH / 2 - WIN_SCORE_WIDTH / 2;
-	message_rect.y = HEIGHT / 2 - WIN_SCORE_HEIGHT;
+	message_rect.y = HEIGHT / 4 - WIN_SCORE_HEIGHT / 2;
 	message_rect.w = WIN_SCORE_WIDTH;
 	message_rect.h = WIN_SCORE_HEIGHT;
 
 	SDL_Rect score_rect;
 	score_rect.x = WIDTH / 2 - WIN_SCORE_WIDTH / 2;
-	score_rect.y = HEIGHT / 2;
+	score_rect.y = HEIGHT / 2 - WIN_SCORE_HEIGHT / 2;
 	score_rect.w = WIN_SCORE_WIDTH;
 	score_rect.h = WIN_SCORE_HEIGHT;
 
+	SDL_Rect countdown_rect;
+	countdown_rect.x = WIDTH / 2 - COUNTDOWN_WIDTH / 2;
+	countdown_rect.y = HEIGHT * 3 / 4 - COUNTDOWN_HEIGHT / 2;
+	countdown_rect.w = COUNTDOWN_WIDTH;
+	countdown_rect.h = COUNTDOWN_HEIGHT;
+
 	SDL_RenderCopy(renderer, message_texture, NULL, &message_rect);
 	SDL_RenderCopy(renderer, score_texture, NULL, &score_rect);
+	SDL_RenderCopy(renderer, countdown_texture, NULL, &countdown_rect);
+
 	SDL_FreeSurface(message_surface);
 	SDL_FreeSurface(score_surface);
+	SDL_FreeSurface(countdown_surface);
+
 	SDL_DestroyTexture(message_texture);
 	SDL_DestroyTexture(score_texture);
+	SDL_DestroyTexture(countdown_texture);
 }
 
 void render_game(SDL_Renderer *renderer, const game_t *game)
 {
 	switch(game->state)
 	{
+		case START_SCREEN_STATE:
+			render_start_screen(renderer, game);
+			break;
 		case RUNNING_STATE:
 			render_running_state(renderer, game);
 			break;
-		case PLAYER_WON_STATE:
-		case PLAYER_LOST_STATE:
+		case GAME_OVER_STATE:
+		case RESET_STATE:
 			render_win_screen(renderer, game);
 			break;
-		case QUIT_STATE:
+			case QUIT_STATE:
 			// game->state = QUIT_STATE;
 			break;
 	}
