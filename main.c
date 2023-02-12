@@ -8,15 +8,19 @@
 #include "./logic.h"
 #include "./rendering.h"
 
-// #define USE_IMU_AS_CONTROLLER
+#define USE_IMU_AS_CONTROLLER
+
+#define DIFFICULTY_LEVEL 1
+// Levels 1-3
 
 #ifdef USE_IMU_AS_CONTROLLER
 
 #include <time.h>
 #include "./serial_port.h"
 #define UART_READ_INTERVAL_MS	100
-#define BUFFER_LENGTH			64
-#define NUM_DATA_VALUES			3
+#define BUFFER_LENGTH			16
+#define NUM_DATA_VALUES 1
+// int num_data_values = 1;
 
 #endif // USE_IMU_AS_CONTROLLER
 
@@ -38,7 +42,7 @@ int main(int argc, char *argv[])
 #ifdef USE_IMU_AS_CONTROLLER
 	// COM ports higher than COM9 need \\.\ prefix,
 	// which is written as "\\\\.\\" in C to escape the backslashes
-	const char *device = "\\\\.\\COM7";
+	const char *device = "\\\\.\\COM10";
 	uint32_t baud_rate = 115200;
 	HANDLE port = open_serial_port(device, baud_rate);
 	if (port == INVALID_HANDLE_VALUE)
@@ -50,6 +54,7 @@ int main(int argc, char *argv[])
 
 	int msec = 0;
 	clock_t last_time = clock();
+	clock_t start_time, end_time;
 
 	char rx_buf[BUFFER_LENGTH];
 	char *saveptr;
@@ -73,22 +78,17 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	game_t game = {
-		.state = RUNNING_STATE,
-		.player_x_pos = WIDTH / 2,
-		.player_x_vel = 0,
-		.opponent_x_pos = WIDTH / 2,
-		.ball_pos = {WIDTH / 2, HEIGHT / 2},
-		.ball_vel = {BALL_SPEED / 2, BALL_SPEED},
-		.player_score = 0,
-		.opponent_score = 0
-	};
+	game_t game;
+
+	initialize_game_state(&game, DIFFICULTY_LEVEL);
 
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
 	SDL_Event event;
 	while (game.state != QUIT_STATE)
 	{
+		// start_time = clock();
+
 		while (SDL_PollEvent(&event))
 		{
 			switch(event.type)
@@ -101,26 +101,29 @@ int main(int argc, char *argv[])
 
 		// TODO: implement serial port read
 #ifdef USE_IMU_AS_CONTROLLER
-		float data[3];
+		float data[NUM_DATA_VALUES];
+		char *delim;
+		if (NUM_DATA_VALUES == 1)
+		{
+			delim = "\n";
+		}
+		else
+		{
+			delim = ",";
+		}
 		if (clock() - last_time > UART_READ_INTERVAL_MS)
 			{
 			SSIZE_T received = read_port(port, rx_buf, BUFFER_LENGTH);
-			printf("****\n");
-			printf("%s\n\n", rx_buf);
 
 			/* Remove first line of data to ensure an entire line is read in */
 			token = strtok_r(rx_buf, "\n", &saveptr);
 
-			/* Separate by commas to get pitch and roll data */
-			// token = strtok_r(NULL, ",", &saveptr);
+			/* Separate by delim to get pitch and roll data */
 			for (int i = 0; i < NUM_DATA_VALUES; i++)
 			{
-				token = strtok_r(NULL, ",", &saveptr);
+				token = strtok_r(NULL, delim, &saveptr);
 				data[i] = atof(token);
-				// printf("token: %s\n", token);
 			}
-
-			printf("data: [%f, %f, %f]\n", data[0], data[1], data[2]);
 
 			last_time = clock();
 		}
@@ -165,6 +168,9 @@ int main(int argc, char *argv[])
 		// Draw the image to the window
 		render_game(renderer, &game);
 		SDL_RenderPresent(renderer);
+
+		// end_time = clock();
+		// printf("frame time: %lu\n", end_time - start_time);
 
 		// Wait 1/60th of a second
 		SDL_Delay(1000 / FPS);

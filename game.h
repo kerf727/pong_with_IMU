@@ -13,7 +13,7 @@
 #define BALL_SPEED			300
 #define MAX_ROLL_ANGLE		45.0f
 
-#define WINNING_SCORE		1 // 5
+#define WINNING_SCORE		5
 
 #define RUNNING_STATE		0
 #define PLAYER_WON_STATE	1
@@ -23,17 +23,20 @@
 typedef struct
 {
 	int state;
+	int player_score;
+	int opponent_score;
+	int difficulty_level;
 
 	int player_x_pos;
 	int player_x_vel;
+
+	int opponent_speed;
 	int opponent_x_pos;
 	int opponent_x_vel;
 
+	int ball_speed;
 	int ball_pos[2];
 	int ball_vel[2];
-
-	int player_score;
-	int opponent_score;
 } game_t;
 
 #endif // !GAME_H_
