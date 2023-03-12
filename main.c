@@ -9,7 +9,7 @@
 #include "./logic.h"
 #include "./rendering.h"
 
-// #define USE_IMU_AS_CONTROLLER
+#define USE_IMU_AS_CONTROLLER
 
 #ifdef USE_IMU_AS_CONTROLLER
 
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 		// printf("frame time: %lu\n", end_time - start_time);
 
 		// Wait 1/60th of a second
-		SDL_Delay(1000 / FPS);
+		// SDL_Delay(1000 / FPS);
 	}
 
 	// SDL_DestroyTexture(tex);
